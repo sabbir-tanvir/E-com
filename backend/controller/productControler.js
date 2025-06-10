@@ -39,7 +39,7 @@ export const getAllProducts = handelAsyncError(async (req, res, next) => {
     const products = await apiFetures.query;
 
 
-    if (!product || product.length === 0) {
+    if (!products || products.length === 0) {
         return next(new HandelError("No Product is Found", 404))
 
     }
