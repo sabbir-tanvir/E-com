@@ -4,7 +4,12 @@ import HandelError from "../utils/handelError.js";
 import handelAsyncError from '../middleware/handelAsyncError.js';
 import APIFunctionality from '../utils/apiFunctionality.js';
 
+
+
+// Create the Product
+
 export const createProduct = handelAsyncError(async (req, res, next) => {
+    req.body.user = req.user.id;
     const product = await Product.create(req.body)
 
     res.status(201).json({
