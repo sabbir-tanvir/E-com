@@ -1,6 +1,6 @@
 import express from 'express';
-import product from '../routes/productRoutes.js';
-import user from '../routes/userRoutes.js';
+import product from './routes/productRoutes.js';
+import user from './routes/userRoutes.js';
 import errorHaldelMiddlewire from './middleware/error.js';
 
 import cookieParser from 'cookie-parser';

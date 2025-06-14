@@ -20,4 +20,18 @@ export const verifyUserAuth = handelAsyncError(async (req, res, next) => {
 })
 
 
+
+export const roleBasedAccess = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next(new HandelError(`Role: ${req.user.role} is not allowed to access this resource`, 403));
+        }
+        next();
+    }
+}
+
+
+
+
+
 // 5: 09 min
