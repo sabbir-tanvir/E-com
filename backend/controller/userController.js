@@ -3,6 +3,7 @@ import User from "../models/userModel.js";
 import HandelError from "../utils/handelError.js";
 import { sentToken } from "../utils/jetToken.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import crypto from "crypto";
 
 
 // Resister the user 
@@ -64,7 +65,7 @@ export const logout = handelAsyncError(async (req, res, next) => {
 })
 
 
-// Reset the password 
+// Forgot the password 
 
 export const resetPassword = handelAsyncError(async (req, res, next) => {
     const { email } = req.body;
@@ -111,3 +112,100 @@ export const resetPassword = handelAsyncError(async (req, res, next) => {
     }
 });
 
+
+// Reset the password
+
+export const resetPasswordConfirm = handelAsyncError(async (req, res, next) => {
+
+    const { password, confirmPassword } = req.body;
+
+    // if (!token || !password) {
+    //     return next(new HandelError("Please provide token and new password", 400));
+    // }
+
+    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        return next(new HandelError("Reset token is invalid or has expired", 400));
+    }
+
+    if (password !== confirmPassword) {
+        return next(new HandelError("Passwords do not match", 400));
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    sentToken(user, 200, res);
+});
+
+
+// get user details 
+
+export const getUserDEtails = handelAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.user.id)
+    res.status(200).json({
+        success: true,
+        user
+    })
+
+})
+
+
+// update the password
+
+export const updatePassword = handelAsyncError(async (req, res, next) => {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    const user = await User.findById(req.user.id).select('+password');
+    const chekPasswordMatch = await user.verifyPassword(oldPassword);
+
+    if (!chekPasswordMatch) {
+        return next(new HandelError(`old password is incorrect `, 400))
+    }
+    if (newPassword !== confirmPassword) {
+        return next(new HandelError("New password and confirm password do not match", 400));
+    }
+    user.password = newPassword;
+    await user.save();
+
+    sentToken(user, 200, res);
+})
+
+
+
+// update the user profile
+export const updateProfile = handelAsyncError(async (req, res, next) => {
+    const newUserData = {
+        name: req.body.name,
+        email: req.body.email,
+    };
+
+    // Update avatar if provided
+    // if (req.body.avatar) {
+    //     newUserData.avatar = {
+    //         public_id: "sample_id", // Replace with actual public_id from cloud storage
+    //         url: req.body.avatar // URL of the uploaded avatar image
+    //     };
+    // }
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+        // useFindAndModify: false
+    });
+
+    res.status(200).json({
+        success: true,
+        message: "Profile updated successfully",
+        user
+    });
+});
