@@ -106,6 +106,97 @@ export const getSingleProduct = handelAsyncError(async (req, res, next) => {
 })
 
 
+// creating and updating the product
+
+export const createReviewForProduct = handelAsyncError(async (req, res, next) => {
+    const { rating, comment, productId } = req.body;
+    const review = {
+        user: req.user._id,
+        name: req.user.name,
+        rating: Number(rating),
+        comment
+
+    }
+    const product = await Product.findById(productId);
+    const reviewExists = product.reviews.find(
+        review => review.user.toString() === req.user.id.toString());
+
+    if (reviewExists) {
+        product.reviews.forEach(review => {
+            if (review.user.toString() === req.user.id.toString()) {
+                review.rating = rating,
+                review.comment = comment
+            }
+        })
+
+    } else {
+        product.reviews.push(review)
+    }
+
+    product.numOfReviews = product.reviews.length
+
+    let avg = 0;
+    product.reviews.forEach(review => {
+        avg += review.rating
+    })
+    product.ratings = product.reviews.length > 0 ? avg / product.reviews.length : 0
+    await product.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+        success: true,
+        product
+    })
+})
+
+
+// getting reviews 
+
+export const getProductReview = handelAsyncError(async (req, res, next) => {
+    const product = await Product.findById(req.query.id);
+    if(!product) {
+        return next( new HandelError(`Product not Found`, 400))
+    }    
+    res.status(200).json({
+        success: true,
+        reviews: product.reviews
+        
+    })
+})
+
+
+// deleting reviews 
+
+export const deletReview = handelAsyncError(async (req, res, next) => {
+    const product = await Product.findById(req.query.productId);
+    if(!product) {
+        return next( new HandelError(`Product not Found`, 400))
+    }    
+    const reviews = product.reviews.filter(review =>
+        review._id.toString()!== req.query.id.toString())
+
+
+        let avg = 0;
+    reviews.forEach(review => {
+        avg += review.rating
+    })
+    const ratings = reviews.length > 0 ? avg / reviews.length : 0
+    const numOfReviews = reviews.length;
+
+    await Product.findByIdAndUpdate(req.query.productId, {
+        reviews,
+        ratings,
+        numOfReviews
+    },{
+        new: true,
+        runValidators: true
+    })
+
+    res.status(200).json({
+        success: true,
+        message: "Review delet succesfully "
+        
+    })
+})
 
 // admin getting all products
 
