@@ -107,5 +107,15 @@ export const getSingleProduct = handelAsyncError(async (req, res, next) => {
 
 
 
+// admin getting all products
 
-/// 3: 44 min 
+export const getAdminProducts = handelAsyncError(async (req, res, next) => {
+    const products = await Product.find();
+    if (!products || products.length === 0) {
+        return next(new HandelError("No Product is Found", 404))
+    }
+    res.status(200).json({
+        success: true,
+        products
+    })
+})

@@ -209,3 +209,72 @@ export const updateProfile = handelAsyncError(async (req, res, next) => {
         user
     });
 });
+
+
+
+// Get all users (Admin only)
+
+export const getAllUsers = handelAsyncError(async (req, res, next) => {
+    const users = await User.find();
+    if (!users) {
+        return next(new HandelError("No users found", 404));
+    }
+    res.status(200).json({
+        success: true,
+        users
+    });
+})
+
+// admin getting single user details
+export const getSingleUserDetails = handelAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return next(new HandelError("User not found", 404));
+    }
+    res.status(200).json({
+        success: true,
+        user
+    });
+});
+
+
+// Admin changing user role
+export const updateUserRole = handelAsyncError(async (req, res, next) => {
+    const { role } = req.body;
+    const newUserData = {
+        role: role
+    };
+
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+        new: true,
+        runValidators: true,
+        // useFindAndModify: false
+    });
+
+    if (!user) {
+        return next(new HandelError("User not found", 404));
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "User role updated successfully",
+        user
+    });
+});
+
+
+// admin deleting user
+export const deleteUser = handelAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return next(new HandelError("User not found", 404));
+    }
+
+    await user.remove();
+
+    res.status(200).json({
+        success: true,
+        message: "User deleted successfully"
+    });
+});
+
