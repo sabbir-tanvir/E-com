@@ -31,7 +31,7 @@ function Product({ product }) {
                         </div>
 
                         <span className="productCardSpan">
-                        (    {product.numOfReviews} { product.numOfReviews === 1? "Review":"Reviews"})
+                            (    {product.numOfReviews} {product.numOfReviews === 1 ? "Review" : "Reviews"})
                         </span>
 
                         <button className="add-to-cart">
