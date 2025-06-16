@@ -41,7 +41,7 @@
   }
   
   .dot.active {
-    background-color: rgba(255, 255, 255, 1);
+    background-color: rgb(156, 60, 60);
   }
   
   .dot:hover {
