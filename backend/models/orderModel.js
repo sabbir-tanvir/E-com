@@ -49,6 +49,11 @@ const orderSchema = new mongoose.Schema({
             }
         }
     ],
+    orderStatus:{
+        type: String,
+        require: true,
+        default: "Processing"
+    },
     user:{
         type: mongoose.Schema.ObjectId,
         ref: "User",
