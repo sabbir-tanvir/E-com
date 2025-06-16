@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import ImageSlider from '../components/ImageSlider';
 import Product from '../components/Product';
 import PageTitle from '../components/PageTitle';
+import { useSelector } from  'react-redux';
 
 
 const products = [
@@ -78,6 +79,9 @@ const products = [
         }
     ]
 function Home() {
+
+    useSelector((state) => console.log(state))
+
     return (
         <>
             <PageTitle title="Home" />
