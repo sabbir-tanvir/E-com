@@ -15,7 +15,7 @@ function Product({ product }) {
         <Link to={product._id} className='product_id'>
             <div>
                 <div className="product-card">
-                    <img src={product.images[0].url} alt={product.name} />
+                    <img src={product.images[0].url} alt={product.name}  className='product-image-card'/>
                     <div className="product-details">
                         <h3 className="product-title">
                             {product.name}

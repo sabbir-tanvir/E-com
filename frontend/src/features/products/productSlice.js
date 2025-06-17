@@ -6,14 +6,12 @@ export const getProduct = createAsyncThunk('product/getProduct', async (_,
     try {
         const link = '/api/v1/products';
 
-        const response = await axios.get(link)
-        console.log('Response', response);
-        
-
-        // if (!response.ok) {
-        //     throw new Error('Failed to fetch product');
-        // }
-        // return response.json();
+        const {data, status} = await axios.get(link)
+        console.log('Response', data);
+        if (status !== 200) {
+            throw new Error('Failed to fetch product');
+        }
+        return data;
     } catch (error) {
         return rejectWithValue(error.response?.data || 'An Error happen');
     }
