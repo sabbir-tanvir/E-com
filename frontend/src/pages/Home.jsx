@@ -24,8 +24,9 @@ function Home() {
     }, [dispatch]);
 
     useEffect(() => {
-        if(error) {
-            toast.error(error.message,{ position: "top-center",
+        if (error) {
+            toast.error(error.message, {
+                position: "top-center",
                 autoClose: 3000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -33,7 +34,7 @@ function Home() {
                 draggable: true,
                 progress: undefined,
                 theme: "light",
-             });
+            });
             dispatch(removeError());
         }
     }, [dispatch, error]);
