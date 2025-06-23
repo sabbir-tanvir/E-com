@@ -9,14 +9,22 @@ import { useEffect } from 'react';
 import { getProduct, removeError } from '../features/products/productSlice';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
+import { useLocation } from 'react-router-dom';
+import NoProduct from '../components/NoProduct';
 
 function Products() {
   const { loading, error, products } = useSelector((state) => state.products);
   const dispatch = useDispatch();
+  const location = useLocation();
+  const searchParams =  new URLSearchParams(location.search);
+  const keyword = searchParams.get("keyword");
+  
+console.log(keyword);
+
 
   useEffect(() => {
-    dispatch(getProduct());
-  }, [dispatch]);
+    dispatch(getProduct({keyword}))
+  }, [dispatch, keyword]);
 
 
   useEffect(() => {
@@ -38,29 +46,31 @@ function Products() {
 
   return (
     <>
-    {loading? (<Loader />) :(<>
-      <PageTitle title="All Products" />
-      <Navbar />
-      <div className="products-layout">
-        <div className="filter-section">
-          <h3 className="filter-heading">
-            CATEGORIES
-          </h3>
-
-        </div>
-        <div className="products-section">
-          <div className="products-product-container">
-            {
-              products.map((product) => (
-                <Product key={product._id} product={product} />
-              ))
-            }
+      {loading ? (<Loader />) : (<>
+        <PageTitle title="All Products" />
+        <Navbar />
+        <div className="products-layout">
+          <div className="filter-section">
+            <h3 className="filter-heading">
+              CATEGORIES
+            </h3>
 
           </div>
+          <div className="products-section">
+          {products.length > 0? ( <div className="products-product-container">
+              {
+                products.map((product) => (
+                  <Product key={product._id} product={product} />
+                ))
+              }
+
+            </div>): (
+              <NoProduct keyword={keyword} />
+            )}
+          </div>
         </div>
-      </div>
-      <Footer />
-    </>)}
+        <Footer />
+      </>)}
     </>
   );
 };
