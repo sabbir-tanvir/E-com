@@ -50,7 +50,7 @@
     width: 500px;
   }
   .product-description,.product-price{
-    text-align: left;
+    text-align: center;
   }
   .product-info h2 {
     font-size: 24px;
