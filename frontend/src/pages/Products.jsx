@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../pageStyles/Products.css';
 import Navbar from '../components/Navbar';
 import PageTitle from '../components/PageTitle';
@@ -9,22 +9,27 @@ import { useEffect } from 'react';
 import { getProduct, removeError } from '../features/products/productSlice';
 import { toast } from 'react-toastify';
 import Loader from '../components/Loader';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import NoProduct from '../components/NoProduct';
+import Pagination from '../components/Pagination';
 
 function Products() {
-  const { loading, error, products } = useSelector((state) => state.products);
+  const { loading, error, products , resultPerPage, productCount} = useSelector((state) => state.products);
   const dispatch = useDispatch();
   const location = useLocation();
   const searchParams =  new URLSearchParams(location.search);
   const keyword = searchParams.get("keyword");
-  
-console.log(keyword);
+  const catagory = searchParams.get("category");
+  const page = parseInt(searchParams.get("page") || 1, 10);
 
+  const [ currentPage, setCurrentPage ] = useState(page);
+  const navigate = useNavigate();
+  
+  const categories = ["Electronics", "Fashion", "Books", "Home & Garden", "Sports", "Toys"];
 
   useEffect(() => {
-    dispatch(getProduct({keyword}))
-  }, [dispatch, keyword]);
+    dispatch(getProduct({keyword, page: currentPage, catagory}));
+  }, [dispatch, keyword, currentPage, catagory]);
 
 
   useEffect(() => {
@@ -43,6 +48,27 @@ console.log(keyword);
     }
   }, [dispatch, error]);
 
+  const handlePageChange = (page) => {
+      if(page !== currentPage) {
+        setCurrentPage(page);
+        const newSearchParams = new URLSearchParams(location.search);
+        if(page===1) {
+          newSearchParams.delete("page");
+        } else {
+          newSearchParams.set("page", page);
+        }
+        navigate(`?${newSearchParams.toString()}`);
+
+      }
+  }
+    const handleCategoryClick = (category) => {
+        const SearchParams = new URLSearchParams(location.search);
+        SearchParams.set("category", category);
+        SearchParams.delete("page"); // Reset to first page when changing category
+        navigate(`?${SearchParams.toString()}`);
+
+    }
+
 
   return (
     <>
@@ -54,6 +80,15 @@ console.log(keyword);
             <h3 className="filter-heading">
               CATEGORIES
             </h3>
+            <ul>
+              {categories.map((category) => (
+                <li key={category} className={`filter-item ${catagory === category ? 'active' : ''}`} 
+                onClick={() => handleCategoryClick(category)}
+                >
+                  {category}
+                </li>
+              ))}
+            </ul>
 
           </div>
           <div className="products-section">
@@ -67,6 +102,11 @@ console.log(keyword);
             </div>): (
               <NoProduct keyword={keyword} />
             )}
+
+            <Pagination 
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            />
           </div>
         </div>
         <Footer />

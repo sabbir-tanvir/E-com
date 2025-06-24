@@ -22,7 +22,7 @@ export const createProduct = handelAsyncError(async (req, res, next) => {
 
 //Get the Product
 export const getAllProducts = handelAsyncError(async (req, res, next) => {
-    const resultPerPage = 4;
+    const resultPerPage = 2;
     const apiFetures = new APIFunctionality(Product.find(), req.query).search().filter();
 
 
