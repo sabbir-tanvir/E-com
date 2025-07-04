@@ -4,12 +4,17 @@ import { roleBasedAccess, verifyUserAuth } from '../middleware/userAuth.js';
 
 const router = express.Router();
 
+// Test route
+router.route("/test").get((req, res) => {
+    res.json({ success: true, message: "Server is working!" });
+});
+
 router.route("/register").post(registeruser)
 router.route("/login").post(LoginUser)
 router.route("/logout").post(logout)
 router.route("/password/forgot").post(resetPassword)
 router.route("/password/reset/:token").post(resetPasswordConfirm)
-router.route("/profile").post(verifyUserAuth , getUserDEtails)
+router.route("/profile").get(verifyUserAuth , getUserDEtails)
 router.route("/password/update").post(verifyUserAuth, updatePassword)
 router.route("/profile/update").post(verifyUserAuth, updateProfile)
 router.route("/admin/users").get(verifyUserAuth, roleBasedAccess("admin"), getAllUsers)

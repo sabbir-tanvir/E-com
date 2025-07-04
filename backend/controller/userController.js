@@ -4,24 +4,74 @@ import HandelError from "../utils/handelError.js";
 import { sentToken } from "../utils/jetToken.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import crypto from "crypto";
+import { v2 as cloudinary } from 'cloudinary';
 
 
 // Resister the user 
 
 export const registeruser = handelAsyncError(async (req, res, next) => {
-    const { name, email, password } = req.body;
-
-    const user = await User.create({
-        name,
-        email,
-        password,
-        avatar: {
-            public_id: "sample_id",
-            url: "sample_url"
+    try {
+        const { name, email, password } = req.body;
+        let avatar = req.body.avatar;
+        
+        // Log the received data for debugging
+        console.log('Register request received:', { name, email, hasPassword: !!password, hasAvatar: !!avatar });
+        
+        if (!name || !email || !password) {
+            return next(new HandelError("Please fill all required fields", 400));
         }
-    });
-    sentToken(user, 201, res)
 
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return next(new HandelError("User already exists with this email", 400));
+        }
+
+        // Handle avatar upload
+        let avatarData = {};
+        
+        if (avatar) {
+            console.log('Uploading to Cloudinary...');
+            console.log('Avatar data type:', typeof avatar);
+            console.log('Avatar data length:', avatar?.length);
+            
+            // Ensure the avatar is in correct base64 format
+            if (!avatar.startsWith('data:image/')) {
+                return next(new HandelError("Invalid image format", 400));
+            }
+
+            const myCloudinary = await cloudinary.uploader.upload(avatar, {
+                folder: "avatars",
+                width: 150,
+                crop: "scale"
+            });
+            console.log('Cloudinary upload successful:', { public_id: myCloudinary.public_id });
+            
+            avatarData = {
+                public_id: myCloudinary.public_id,
+                url: myCloudinary.secure_url
+            };
+        } else {
+            // Set default avatar if none provided
+            avatarData = {
+                public_id: "default_avatar",
+                url: "https://res.cloudinary.com/dxrkqals5/image/upload/v1/avatars/default_avatar.png"
+            };
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            password,
+            avatar: avatarData
+        });
+        console.log('User created successfully:', user._id);
+        
+        sentToken(user, 201, res);
+    } catch (error) {
+        console.error('Registration error:', error);
+        return next(new HandelError(error.message || "Registration failed", 500));
+    }
 })
 
 // Login the user 
@@ -63,6 +113,8 @@ export const logout = handelAsyncError(async (req, res, next) => {
         message: "Logged out successfully"
     })
 })
+
+
 
 
 // Forgot the password 

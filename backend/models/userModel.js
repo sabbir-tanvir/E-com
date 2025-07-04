@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         maxLength: [25, "Invalid Name "],
-        minLenght: [3, "Name should contain more than 3 charecter"]
+        minLength: [3, "Name should contain more than 3 characters"]
     },
     email: {
         type: String,
@@ -27,11 +27,13 @@ const userSchema = new mongoose.Schema({
     avatar: {
         public_id: {
             type: String,
-            required: true
+            required: false,
+            default: "default_avatar"
         },
         url: {
             type: String,
-            required: true
+            required: false,
+            default: "https://res.cloudinary.com/dxrkqals5/image/upload/v1/avatars/default_avatar.png"
         }
     },
     role: {

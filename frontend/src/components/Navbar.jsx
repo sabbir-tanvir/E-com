@@ -3,6 +3,7 @@ import '../componentStyles/Navbar.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { CloseOutlined, Menu, PersonAddRounded, Search, ShoppingCart } from '@mui/icons-material';
 import '../pageStyles/Search.css';
+import { useSelector } from 'react-redux';
 
 
 function Navbar() {
@@ -12,8 +13,9 @@ function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-    const isAuthenticated = false;
 
+    const { isAuthenticated } = useSelector((state) => state.user);
+    
     const navigate = useNavigate();
     const handleSearchChange = (e) => {
         e.preventDefault();
